@@ -15,9 +15,9 @@ public class PlainTextCallGraphVisualizer implements CallGraphVisualizer {
     }
 
     @Override
-    public void visualize(CallGraph graph, String nodeId) {
+    public void visualize(CallGraph graph, String... nodeIds) {
 
-        CallNode startNode = graph.getNode(nodeId);
+        CallNode startNode = graph.getNode(nodeIds[0]);
 
         graph.walkDepthFirst(startNode, (callee, caller) -> {
             try {

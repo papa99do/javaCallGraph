@@ -12,18 +12,20 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Set;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         String[] packages = new String[] {"org.reflections"};
-        String method = "org.reflections.Configuration:getUrls()";
+        String[] methods = new String[] {"org.reflections.Configuration:getUrls()", "org.reflections.Reflections:getStore()"};
 
         CallGraph callGraph = new CallGraph();
 
         initializeCallGraph(packages, callGraph);
 
-        new DotGraphVisualizer(System.out).visualize(callGraph, method);
+        new DotGraphVisualizer(System.out).visualize(callGraph, methods);
 
     }
 
@@ -36,11 +38,13 @@ public class Main {
         Set<String> allTypes = reflections.getAllTypes();
         int totalCount = allTypes.size();
         int count = 1;
+        Instant then = Instant.now();
         for (String className: allTypes) {
             log(String.format("\rParsing %d of %d classes: %s", count++, totalCount, className));
             parseClass(callGraph, className);
         }
-        log("\nDone!\n");
+        Duration duration = Duration.between(then, Instant.now());
+        log(String.format("\nDone! Took %d seconds\n", duration.getSeconds()));
     }
 
     private static void parseClass(CallGraph callGraph, String className) {

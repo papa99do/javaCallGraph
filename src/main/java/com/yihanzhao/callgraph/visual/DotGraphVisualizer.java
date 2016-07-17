@@ -11,58 +11,81 @@ import java.util.Map;
 import java.util.Set;
 
 public class DotGraphVisualizer implements CallGraphVisualizer {
+    private static final int INDENT_STEP = 2;
+    private static final byte[] INDENT_PATTERN = "        ".getBytes();
+
     private final OutputStream out;
     private final Map<String, Set<CallNode>> subGroupMap;
+    private final Set<String> callSet;
+    private int indentation;
 
     public DotGraphVisualizer(OutputStream out) {
         this.out = out;
         subGroupMap = new HashMap<>();
+        callSet = new HashSet<>();
+        indentation = 0;
     }
 
     @Override
-    public void visualize(CallGraph graph, String nodeId) {
-        CallNode startNode = graph.getNode(nodeId);
+    public void visualize(CallGraph graph, String... nodeIds) {
 
-        try {
-            writeln("digraph call_graph {");
-
-            graph.walkDepthFirst(startNode, (callee, caller) -> {
+        for(String nodeId : nodeIds) {
+            graph.walkDepthFirst(graph.getNode(nodeId), (callee, caller) -> {
                 addToSubGraph(caller);
                 addToSubGraph(callee);
-                writeln(String.format("  \"%s\" -> \"%s\";", asString(caller), asString(callee)));
+                callSet.add(String.format("\"%s\" -> \"%s\";", asString(caller), asString(callee)));
             });
-
-            drawSubGroup();
-
-            writeln("}");
-
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
+        startGraph();
+
+        drawSubGroup();
+        drawCallSet();
+
+        endGraph();
 
     }
+
+    private void drawCallSet() {
+        callSet.forEach(this::writeln);
+    }
+
+    private void endGraph() {
+        indentation -= INDENT_STEP;
+        writeln("}");
+    }
+
+    private void startGraph() {
+        writeln("digraph call_graph {");
+        indentation += INDENT_STEP;
+    }
+
+    private void startSubGraph(String name) {
+        writeln(String.format("subgraph \"cluster_%s\" {", name));
+        indentation += INDENT_STEP;
+    }
+
+
 
     private String asString(CallNode node) {
         return node.toShortName();
     }
 
-    private void drawSubGroup() throws IOException {
+    private void drawSubGroup() {
         for (Map.Entry<String, Set<CallNode>> entry: subGroupMap.entrySet()) {
             if (entry.getValue().size() <= 1) {
                 continue;
             }
 
-            writeln(String.format("subgraph \"cluster_%s\" {", entry.getKey()));
+            startSubGraph(entry.getKey());
 
             for(CallNode node : entry.getValue()) {
-                writeln(String.format("  \"%s\";", asString(node)));
+                writeln(String.format("\"%s\";", asString(node)));
             }
 
             writeln(String.format("label = \"%s\"", entry.getKey()));
-            writeln("}");
+
+            endGraph();
         }
     }
 
@@ -76,6 +99,7 @@ public class DotGraphVisualizer implements CallGraphVisualizer {
 
     private void writeln(String line) {
         try {
+            out.write(INDENT_PATTERN, 0, indentation);
             out.write((line + "\n").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
