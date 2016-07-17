@@ -5,6 +5,7 @@ import org.apache.bcel.generic.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class MethodVisitor extends EmptyVisitor {
@@ -12,14 +13,14 @@ public class MethodVisitor extends EmptyVisitor {
     private final MethodGen methodGen;
     private final JavaClass clazz;
     private final ConstantPoolGen constantPool;
-    private final CallGraph callGraph;
+    private final BiConsumer<CallNode, CallNode> biConsumer;
 
-    public MethodVisitor(MethodGen methodGen, JavaClass clazz, CallGraph callGraph) {
+    public MethodVisitor(MethodGen methodGen, JavaClass clazz, BiConsumer<CallNode, CallNode> biConsumer) {
 
         this.methodGen = methodGen;
         this.clazz = clazz;
         this.constantPool = methodGen.getConstantPool();
-        this.callGraph = callGraph;
+        this.biConsumer = biConsumer;
     }
 
     public void start() {
@@ -48,7 +49,7 @@ public class MethodVisitor extends EmptyVisitor {
         CallNode callee = new CallNode(obj.getReferenceType(constantPool).toString(),
                 obj.getMethodName(constantPool), typesToString(obj.getArgumentTypes(constantPool)));
 
-        callGraph.addCall(caller, callee);
+        biConsumer.accept(caller, callee);
     }
 
     private List<String> typesToString(Type[] argumentTypes) {

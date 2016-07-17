@@ -60,7 +60,7 @@ public class Main {
 
         for (Method method : clazz.getMethods()) {
             MethodGen mg = new MethodGen(method, clazz.getClassName(), constants);
-            MethodVisitor visitor = new MethodVisitor(mg, clazz, callGraph);
+            MethodVisitor visitor = new MethodVisitor(mg, clazz, callGraph::addCall);
             visitor.start();
         }
     }
