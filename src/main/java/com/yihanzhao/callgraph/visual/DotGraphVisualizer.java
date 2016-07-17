@@ -35,6 +35,9 @@ public class DotGraphVisualizer implements CallGraphVisualizer {
             drawSubGroup();
 
             writeln("}");
+
+            out.flush();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

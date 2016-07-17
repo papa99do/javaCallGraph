@@ -21,22 +21,30 @@ public class Main {
 
         CallGraph callGraph = new CallGraph();
 
+        initializeCallGraph(packages, callGraph);
+
+        new DotGraphVisualizer(System.out).visualize(callGraph, method);
+
+    }
+
+    private static void initializeCallGraph(String[] packages, CallGraph callGraph) {
         Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setUrls(ClasspathHelper.forJavaClassPath())
                 .setScanners(new SubTypesScanner(false))
                 .filterInputsBy(new FilterBuilder().includePackage(packages)));
 
         Set<String> allTypes = reflections.getAllTypes();
-        log("Parsing " + allTypes.size() + " classes...\n");
-        allTypes.forEach(className -> parseClass(callGraph, className));
+        int totalCount = allTypes.size();
+        int count = 1;
+        for (String className: allTypes) {
+            log(String.format("\rParsing %d of %d classes: %s", count++, totalCount, className));
+            parseClass(callGraph, className);
+        }
         log("\nDone!\n");
-
-        new DotGraphVisualizer(System.out).visualize(callGraph, method);
-
     }
 
     private static void parseClass(CallGraph callGraph, String className) {
-        log("\rParsing class: " + className);
+
         JavaClass clazz;
         try {
             clazz = Repository.lookupClass(className);
