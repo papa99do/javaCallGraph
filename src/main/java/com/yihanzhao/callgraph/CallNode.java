@@ -20,16 +20,14 @@ public class CallNode {
         this.id = String.format("%s:%s(%s)", className, methodName,
                 argumentTypes.stream().collect(Collectors.joining(", ")));
 
-        try {
-            this.simpleClassName = Class.forName(className).getSimpleName();
-            if (this.simpleClassName == null || this.simpleClassName.isEmpty()) {
-                this.simpleClassName = className;
-            }
-        } catch (ClassNotFoundException | NoClassDefFoundError e) {
-            this.simpleClassName = className;
-        }
+        this.simpleClassName = simpleName(className);
 
-        invokers = new HashSet<>();
+        this.invokers = new HashSet<>();
+    }
+
+    private String simpleName(String className) {
+        int index = className.lastIndexOf('.');
+        return index < 0 ? className : className.substring(index + 1);
     }
 
     public String getId() {
