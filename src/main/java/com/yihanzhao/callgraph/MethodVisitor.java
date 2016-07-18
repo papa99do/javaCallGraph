@@ -1,12 +1,21 @@
 package com.yihanzhao.callgraph;
 
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.generic.*;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.ConstantPushInstruction;
+import org.apache.bcel.generic.EmptyVisitor;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionConstants;
+import org.apache.bcel.generic.InstructionHandle;
+import org.apache.bcel.generic.InvokeInstruction;
+import org.apache.bcel.generic.MethodGen;
+import org.apache.bcel.generic.ReturnInstruction;
+import org.apache.bcel.generic.Type;
 
 public class MethodVisitor extends EmptyVisitor {
 

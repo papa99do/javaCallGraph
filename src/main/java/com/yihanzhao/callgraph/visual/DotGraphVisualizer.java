@@ -9,18 +9,21 @@ import java.util.Set;
 
 import com.yihanzhao.callgraph.CallGraph;
 import com.yihanzhao.callgraph.CallNode;
+import com.yihanzhao.callgraph.InterfaceHelper;
 
 public class DotGraphVisualizer implements CallGraphVisualizer {
     private static final int INDENT_STEP = 2;
     private static final byte[] INDENT_PATTERN = "        ".getBytes();
 
     private final OutputStream out;
+    private InterfaceHelper interfaceHelper;
     private final Map<String, Set<CallNode>> subGroupMap;
     private final Set<String> callSet;
     private int indentation;
 
-    public DotGraphVisualizer(OutputStream out) {
+    public DotGraphVisualizer(OutputStream out, InterfaceHelper interfaceHelper) {
         this.out = out;
+        this.interfaceHelper = interfaceHelper;
         subGroupMap = new HashMap<>();
         callSet = new HashSet<>();
         indentation = 0;

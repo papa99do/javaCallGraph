@@ -35,12 +35,13 @@ public class Main {
 //        allTypes.forEach(System.out::println);
 
         CallGraph callGraph = new CallGraph();
+        InterfaceHelper interfaceHelper = new InterfaceHelper();
 
-        initializeCallGraph(callGraph, allTypes);
+        initializeCallGraph(callGraph, interfaceHelper, allTypes);
 
 //        debugCallGraph(callGraph);
 
-        new DotGraphVisualizer(System.out).visualize(callGraph, methods);
+        new DotGraphVisualizer(System.out, interfaceHelper).visualize(callGraph, methods);
 
     }
 
@@ -64,16 +65,30 @@ public class Main {
         return allClasses;
     }
 
-    private static void initializeCallGraph(CallGraph callGraph, Set<String> allTypes) {
+    private static void initializeCallGraph(CallGraph callGraph, InterfaceHelper interfaceHelper, Set<String> allTypes) {
         int totalCount = allTypes.size();
         int count = 1;
         Instant then = Instant.now();
         for (String className: allTypes) {
             log(String.format("\rParsing %d of %d classes: %s", count++, totalCount, className));
-            ClassUtils.parseClass(className, callGraph::addCall);
+            ClassUtils.parseClass(className, callGraph::addCall, interfaceHelper::addClass);
         }
         Duration duration = Duration.between(then, Instant.now());
         log(String.format("\nDone! Took %d seconds\n", duration.getSeconds()));
+
+        addCallViaInterfaces(callGraph, interfaceHelper);
+    }
+
+    private static void addCallViaInterfaces(CallGraph callGraph, InterfaceHelper interfaceHelper) {
+        for (CallNode node: callGraph.getCallNodeMap().values()) {
+            Set<String> interfaceNames = interfaceHelper.getInterfacesWithThisOnlyChild(node.getClassName());
+            for (String interfaceName: interfaceNames) {
+                CallNode viaInterface = callGraph.getCallNodeMap().get(node.getId().replace(node.getClassName(), interfaceName));
+                if (viaInterface != null) {
+                    viaInterface.getInvokers().forEach(node::addInvoker);
+                }
+            }
+        }
     }
 
     private static void log(String message) {
