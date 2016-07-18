@@ -6,11 +6,13 @@ import java.util.stream.Collectors;
 public class CallNode {
     private final String id;
     private final String className;
-    private String simpleClassName;
+    private final String simpleClassName;
     private final String methodName;
     private final List<String> argumentTypes;
 
     private final Set<CallNode> invokers;
+
+    private boolean visited = false;
 
     public CallNode(String className, String methodName, List<String> argumentTypes) {
         this.className = className;
@@ -59,7 +61,15 @@ public class CallNode {
     }
 
     public String toShortName() {
-        return simpleClassName + ":" + methodName;
+        return String.format("%s:%s_%d", simpleClassName, methodName, argumentTypes.size());
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     @Override

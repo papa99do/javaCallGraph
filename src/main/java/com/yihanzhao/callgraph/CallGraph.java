@@ -1,12 +1,14 @@
 package com.yihanzhao.callgraph;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class CallGraph {
     private final Map<String, CallNode> callNodeMap;
-
+    private Set<String> visitedCalls = new HashSet<>();
 
     public CallGraph() {
         this.callNodeMap = new HashMap<>();
@@ -22,21 +24,19 @@ public class CallGraph {
         return callNodeMap.containsKey(id);
     }
 
-    public void walkWidthFirst(CallNode callee, BiConsumer<CallNode, CallNode> consumer) {
-        for (CallNode caller: callee.getInvokers()) {
-            consumer.accept(callee, caller);
-        }
+    public void walkDepthFirst(CallNode callee, BiConsumer<CallNode, CallNode> consumer) {
+        callee.getInvokers().stream()
+                .filter(caller -> !visitedCalls.contains(callSignature(callee, caller)))
+                .forEach(caller -> {
 
-        for (CallNode caller: callee.getInvokers()) {
-            walkWidthFirst(caller, consumer);
-        }
+            consumer.accept(callee, caller);
+            visitedCalls.add(callSignature(callee, caller));
+            walkDepthFirst(caller, consumer);
+        });
     }
 
-    public void walkDepthFirst(CallNode callee, BiConsumer<CallNode, CallNode> consumer) {
-        for (CallNode caller: callee.getInvokers()) {
-            consumer.accept(callee, caller);
-            walkDepthFirst(caller, consumer);
-        }
+    private String callSignature(CallNode callee, CallNode caller) {
+        return caller.getId() + callee.getId();
     }
 
     private CallNode findCallNode(CallNode callNode) {
@@ -51,5 +51,9 @@ public class CallGraph {
             throw new IllegalArgumentException("Node " + nodeId + " does not exist");
         }
         return callNodeMap.get(nodeId);
+    }
+
+    public Map<String, CallNode> getCallNodeMap() {
+        return callNodeMap;
     }
 }
