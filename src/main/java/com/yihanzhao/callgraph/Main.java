@@ -20,7 +20,15 @@ public class Main {
                 "com.aconex.doccontrol.bo.UpdatingControlledDocBO:makeConfidential(J, Ljava/lang/Long;)",
                 "com.aconex.doccontrol.bo.UpdatingControlledDocBO:makeDocInRecipientRegisterConfidential(Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/security/bean/User;, Ljava/lang/Long;, Lcom/aconex/doccontrol/bo/CDSource;)",
                 "com.aconex.doccontrol.bo.UpdatingControlledDocBO:makeNonConfidential(J, Ljava/lang/Long;)",
-                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:makeNonConfidential(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;)"
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:makeNonConfidential(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;)",
+
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:addConfidentialUsers(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;, Ljava/util/List;, Z)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:addConfidentialUsersForRegister(Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/doccontrol/bo/CDSource;, Ljava/lang/Long;, Lcom/aconex/security/bean/User;)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:removeConfidentialUsers(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;, Ljava/util/List;, Z)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:removeAllConfidentialUsers(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:updateConfidentialUsers(Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/security/bean/User;, Ljava/lang/Long;, Lcom/aconex/doccontrol/bo/CDSource;)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:updateConfidentialUsers(Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;, Ljava/util/List;)",
+                "com.aconex.doccontrol.bo.UpdatingControlledDocBO:saveConfidentialChanges(Lcom/aconex/doccontrol/bean/ControlledDocument;, Lcom/aconex/doccontrol/bean/ControlledDocument;, Ljava/lang/Long;)"
         };
 
         Set<String> allTypes = getAllTypes(packages);

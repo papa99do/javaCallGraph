@@ -1,14 +1,14 @@
 package com.yihanzhao.callgraph.visual;
 
-import com.yihanzhao.callgraph.CallGraph;
-import com.yihanzhao.callgraph.CallNode;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.yihanzhao.callgraph.CallGraph;
+import com.yihanzhao.callgraph.CallNode;
 
 public class DotGraphVisualizer implements CallGraphVisualizer {
     private static final int INDENT_STEP = 2;
@@ -68,19 +68,15 @@ public class DotGraphVisualizer implements CallGraphVisualizer {
 
 
     private String asString(CallNode node) {
-        return node.toShortName();
+        return Integer.toHexString(node.hashCode());
     }
 
     private void drawSubGroup() {
         for (Map.Entry<String, Set<CallNode>> entry: subGroupMap.entrySet()) {
-            if (entry.getValue().size() <= 1) {
-                continue;
-            }
-
             startSubGraph(entry.getKey());
 
             for(CallNode node : entry.getValue()) {
-                writeln(String.format("\"%s\";", asString(node)));
+                writeln(String.format("\"%s\" [label=\"%s\"];", asString(node), node.getMethodName()));
             }
 
             writeln(String.format("label = \"%s\"", entry.getKey()));
