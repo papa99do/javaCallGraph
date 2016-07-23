@@ -20,7 +20,7 @@ public class CallNode {
         this.argumentTypes = argumentTypes;
 
         this.id = String.format("%s:%s(%s)", className, methodName,
-                argumentTypes.stream().collect(Collectors.joining(", ")));
+                argumentTypes.stream().collect(Collectors.joining(";")));
 
         this.simpleClassName = simpleName(className);
 
