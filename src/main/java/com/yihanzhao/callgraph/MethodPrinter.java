@@ -1,20 +1,26 @@
 package com.yihanzhao.callgraph;
 
+import com.github.jankroken.commandline.CommandLineParser;
+import com.github.jankroken.commandline.OptionStyle;
+import com.yihanzhao.callgraph.classutils.ClassScanner;
+
 import java.util.HashSet;
 import java.util.Set;
 
 public class MethodPrinter {
 
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            throw new IllegalArgumentException("Full class name is needed as first parameter");
-        }
+    public static void main(String[] args) throws Exception {
 
-        String className = args[0];
+        ListMethodsOptions options = CommandLineParser.parse(ListMethodsOptions.class, args,
+                OptionStyle.LONG_OR_COMPACT);
+
+        String className = options.getClassName();
+
+        ClassScanner scanner = new ClassScanner(options.getClassPath());
 
         Set<String> methodSignatures = new HashSet<>();
 
-        ClassUtils.parseClass(className, ((caller, callee) -> methodSignatures.add(caller.getId())));
+        ClassUtils.handleClass(scanner.parseClass(className), ((caller, callee) -> methodSignatures.add(caller.getId())));
 
         System.out.println(String.format("\nMethods in class %s:", className));
         methodSignatures.forEach(System.out::println);

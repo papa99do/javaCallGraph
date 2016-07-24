@@ -1,67 +1,54 @@
 package com.yihanzhao.callgraph;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.github.jankroken.commandline.CommandLineParser;
 import com.github.jankroken.commandline.OptionStyle;
+import com.yihanzhao.callgraph.classutils.ClassScanner;
 import com.yihanzhao.callgraph.visual.DotGraphVisualizer;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
+import org.apache.bcel.classfile.JavaClass;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        try {
-            CallGraphOptions options = CommandLineParser.parse(CallGraphOptions.class, args, OptionStyle.LONG_OR_COMPACT);
+        DrawCallGraphOptions options = CommandLineParser.parse(DrawCallGraphOptions.class, args,
+                OptionStyle.LONG_OR_COMPACT);
 
-            Set<String> allTypes = getAllTypes(options.getPackages());
+        try {
+            ClassScanner scanner = new ClassScanner(options.getClassPath(), options.getPackages());
+            Set<String> allTypes = scanner.getAllClassNames().collect(toSet());
 
             CallGraph callGraph = new CallGraph();
             InterfaceHelper interfaceHelper = new InterfaceHelper();
 
-            initializeCallGraph(callGraph, interfaceHelper, allTypes);
+            initializeCallGraph(scanner, callGraph, interfaceHelper, allTypes);
 
             new DotGraphVisualizer(options.getOutput(), interfaceHelper).visualize(callGraph, options.getMethods());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
-            CallGraphOptions.printUsage();
+            options.usage();
             System.exit(-1);
         }
     }
 
-    private static void debugCallGraph(CallGraph callGraph) {
-        callGraph.getCallNodeMap().values().stream()
-                .map(CallNode::getId)
-                .filter(nodeId -> nodeId.contains(""))
-                .forEach(System.out::println);
-    }
-
-    private static Set<String> getAllTypes(String[] packages) {
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .setUrls(ClasspathHelper.forJavaClassPath())
-                .setScanners(new SubTypesScanner(false))
-                .filterInputsBy(new FilterBuilder().includePackage(packages)));
-
-        Set<String> allClasses = new HashSet<>();
-        for (String superType : reflections.getStore().keySet()) {
-            allClasses.addAll(reflections.getStore().get(superType).values());
-        }
-        return allClasses;
-    }
-
-    private static void initializeCallGraph(CallGraph callGraph, InterfaceHelper interfaceHelper, Set<String> allTypes) {
+    private static void initializeCallGraph(ClassScanner scanner, CallGraph callGraph,
+                                            InterfaceHelper interfaceHelper, Set<String> allTypes) {
         int totalCount = allTypes.size();
         int count = 1;
         Instant then = Instant.now();
         for (String className: allTypes) {
             log(String.format("\rParsing %d of %d classes: %s", count++, totalCount, className));
-            ClassUtils.parseClass(className, callGraph::addCall, interfaceHelper::addClass);
+            JavaClass clazz;
+            try {
+                clazz = scanner.parseClass(className);
+            } catch (ClassNotFoundException e) {
+                continue;
+            }
+            ClassUtils.handleClass(clazz, callGraph::addCall, interfaceHelper::addClass);
         }
         Duration duration = Duration.between(then, Instant.now());
         log(String.format("\nDone! Took %d seconds\n", duration.getSeconds()));

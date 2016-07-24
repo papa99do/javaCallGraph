@@ -3,27 +3,20 @@ package com.yihanzhao.callgraph;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.JavaClass;
 import org.apache.bcel.classfile.Method;
 import org.apache.bcel.generic.ConstantPoolGen;
 import org.apache.bcel.generic.MethodGen;
 
 public class ClassUtils {
-    static void parseClass(String className, BiConsumer<CallNode, CallNode> methodCallConsumer, Consumer<JavaClass> classConsumer) {
 
-        JavaClass clazz;
-        try {
-            clazz = Repository.lookupClass(className);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return;
-        }
+    public static void handleClass(JavaClass clazz, BiConsumer<CallNode, CallNode> methodCallConsumer,
+                                   Consumer<JavaClass> classConsumer) {
+        classConsumer.accept(clazz);
+        handleClass(clazz, methodCallConsumer);
+    }
 
-        if (classConsumer != null) {
-            classConsumer.accept(clazz);
-        }
-
+    public static void handleClass(JavaClass clazz, BiConsumer<CallNode, CallNode> methodCallConsumer) {
         ConstantPoolGen constants = new ConstantPoolGen(clazz.getConstantPool());
 
         for (Method method : clazz.getMethods()) {
@@ -33,7 +26,4 @@ public class ClassUtils {
         }
     }
 
-    public static void parseClass(String className, BiConsumer<CallNode, CallNode> methodCallConsumer) {
-        parseClass(className, methodCallConsumer, null);
-    }
 }
