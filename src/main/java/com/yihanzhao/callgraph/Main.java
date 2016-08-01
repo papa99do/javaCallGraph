@@ -1,22 +1,27 @@
 package com.yihanzhao.callgraph;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Set;
+
 import com.github.jankroken.commandline.CommandLineParser;
 import com.github.jankroken.commandline.OptionStyle;
 import com.yihanzhao.callgraph.classutils.ClassScanner;
 import com.yihanzhao.callgraph.visual.DotGraphVisualizer;
 import org.apache.bcel.classfile.JavaClass;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
-
 public class Main {
     public static void main(String[] args) throws Exception {
 
         DrawCallGraphOptions options = CommandLineParser.parse(DrawCallGraphOptions.class, args,
                 OptionStyle.LONG_OR_COMPACT);
+
+        if (options.isHelp()) {
+            options.usage();
+            return;
+        }
 
         try {
             ClassScanner scanner = new ClassScanner(options.getClassPath(), options.getPackages());

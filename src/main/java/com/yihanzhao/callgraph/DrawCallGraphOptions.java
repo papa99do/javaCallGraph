@@ -1,14 +1,20 @@
 package com.yihanzhao.callgraph;
 
-import com.github.jankroken.commandline.annotations.*;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.github.jankroken.commandline.annotations.LongSwitch;
+import com.github.jankroken.commandline.annotations.LooseArguments;
+import com.github.jankroken.commandline.annotations.Multiple;
+import com.github.jankroken.commandline.annotations.Option;
+import com.github.jankroken.commandline.annotations.ShortSwitch;
+import com.github.jankroken.commandline.annotations.SingleArgument;
 
 public class DrawCallGraphOptions extends BaseOptions {
 
@@ -18,9 +24,9 @@ public class DrawCallGraphOptions extends BaseOptions {
 
     protected void usage() {
         System.out.println("\n" +
-                "Usage: ./draw_call_graph.sh -cp classpath [-p <package1> <package2>] [-o <output.dot>] <method1> [<method2>]\n" +
+                "Usage: ./draw_call_graph.sh -c classpath [-p <package1>:<package2>] [-o <output.dot>] <method1> [<method2>]\n" +
                 "\t-c --classpath \t\t classpath of the classes under analysis\n" +
-                "\t-p --package \t\t packages to be included, optional, will derive from methods is not specified\n" +
+                "\t-p --packages \t\t packages to be included, optional, will derive from methods is not specified\n" +
                 "\t-o --output \t\t output file, optional, will use standard output if nto specified\n" +
                 "\t<method> \t\t method signature from list_method.sh, at least one is required\n" +
                 "\n\n");
@@ -29,9 +35,9 @@ public class DrawCallGraphOptions extends BaseOptions {
     @Option
     @LongSwitch("packages")
     @ShortSwitch("p")
-    @AllAvailableArguments
-    public void setPackages(List<String> packages) {
-        this.packages = new HashSet<>(packages);
+    @SingleArgument
+    public void setPackages(String packages) {
+        this.packages = new HashSet<>(Arrays.asList(packages.split(":")));
     }
 
     @Option

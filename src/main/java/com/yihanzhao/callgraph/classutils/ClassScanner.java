@@ -1,18 +1,23 @@
 package com.yihanzhao.callgraph.classutils;
 
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.util.ClassPath;
-import org.apache.bcel.util.SyntheticRepository;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import static java.util.stream.Collectors.toSet;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.util.ClassPath;
+import org.apache.bcel.util.SyntheticRepository;
 
 public class ClassScanner {
     private final Set<File> classPathEntries;
@@ -54,7 +59,8 @@ public class ClassScanner {
     }
 
     private Stream<String> getClassNamesFromJar(File jarFile) {
-        try (ZipFile zipFile = new ZipFile(jarFile)) {
+        try  {
+            ZipFile zipFile = new ZipFile(jarFile);
 
             return enumerationAsStream(zipFile.entries())
                     .filter(entry -> !entry.isDirectory())
